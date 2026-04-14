@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Details | Woodoor</title>
+    <meta name="description" content="View premium product details including wood type, sizes, thickness, finish and available colors." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="logo" href="index.html">Wood<span>oor</span></a>
+        <button class="menu-btn" aria-label="Toggle menu">&#9776;</button>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a class="active" href="shop.html">Shop</a>
+          <a href="about.html">About</a>
+          <a href="services.html">Services</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container product-page">
+        <section class="animate">
+          <div class="zoom-wrap">
+            <img id="main-product-image" src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=900&q=80" alt="Grand oak main door" />
+          </div>
+          <div class="thumbs">
+            <img class="active" src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=300&q=80" alt="Door angle 1" />
+            <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=300&q=80" alt="Door angle 2" />
+            <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?auto=format&fit=crop&w=300&q=80" alt="Door angle 3" />
+          </div>
+        </section>
+
+        <section class="animate">
+          <h1 class="section-title">Grand Oak Main Door</h1>
+          <p class="price" style="font-size: 1.5rem; margin-bottom: 10px;">PKR 88,000</p>
+          <p>
+            Handcrafted oak entrance door featuring premium carved detailing,
+            weather-resistant polish, and reinforced frame for enhanced security.
+          </p>
+          <h3 style="margin-top: 20px; font-family: Poppins, sans-serif;">Specifications</h3>
+          <ul class="spec-list">
+            <li><strong>Wood Type:</strong> Sheesham, Deodar, Oak</li>
+            <li><strong>Size Options:</strong> 3x7 ft, 4x8 ft, custom</li>
+            <li><strong>Thickness:</strong> 1.5 in / 2 in</li>
+            <li><strong>Polish/Finish:</strong> Matte, semi-gloss, teak polish</li>
+            <li><strong>Available Colors:</strong> Walnut, Teak, Matte Black</li>
+          </ul>
+          <div class="hero-actions" style="margin-top: 24px;">
+            <a class="btn btn-primary" href="#">Add to Cart</a>
+            <a class="btn btn-outline dark" href="https://wa.me/923001234567" target="_blank" rel="noreferrer">WhatsApp Order</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <a class="whatsapp-float" href="https://wa.me/923001234567" target="_blank" rel="noreferrer" aria-label="WhatsApp">WA</a>
+    <script src="script.js"></script>
+  </body>
+</html>

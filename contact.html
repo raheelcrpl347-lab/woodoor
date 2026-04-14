@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact | Woodoor</title>
+    <meta name="description" content="Contact Woodoor for wooden doors and windows quote, WhatsApp order, and showroom location." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="logo" href="index.html">Wood<span>oor</span></a>
+        <button class="menu-btn" aria-label="Toggle menu">&#9776;</button>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="about.html">About</a>
+          <a href="services.html">Services</a>
+          <a href="gallery.html">Gallery</a>
+          <a class="active" href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <h1 class="section-title animate">Contact Us</h1>
+        <div class="contact-grid">
+          <form class="animate">
+            <label for="name">Name</label>
+            <input id="name" type="text" placeholder="Enter your name" required />
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel" placeholder="Enter your phone" required />
+            <label for="service">Interested In</label>
+            <select id="service">
+              <option>Doors</option>
+              <option>Windows</option>
+              <option>Custom Design</option>
+              <option>Installation</option>
+            </select>
+            <label for="message">Message</label>
+            <textarea id="message" placeholder="Share dimensions or design preferences"></textarea>
+            <button class="btn btn-primary" type="submit">Send Inquiry</button>
+          </form>
+          <div class="animate">
+            <h3>Phone</h3>
+            <p>+92 300 1234567</p>
+            <h3 style="margin-top: 12px;">WhatsApp</h3>
+            <p><a class="btn btn-outline dark" href="https://wa.me/923001234567" target="_blank" rel="noreferrer">Chat on WhatsApp</a></p>
+            <h3 style="margin-top: 20px;">Showroom Location</h3>
+            <iframe src="https://maps.google.com/maps?q=Lahore&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <a class="whatsapp-float" href="https://wa.me/923001234567" target="_blank" rel="noreferrer" aria-label="WhatsApp">WA</a>
+    <script src="script.js"></script>
+  </body>
+</html>

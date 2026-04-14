@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel | Woodoor</title>
+    <meta
+      name="description"
+      content="Admin panel to manage website products and gallery images."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="logo" href="index.html">Wood<span>oor</span></a>
+        <button class="menu-btn" aria-label="Toggle menu">&#9776;</button>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="shop.html">Shop</a>
+          <a href="gallery.html">Gallery</a>
+          <a class="active" href="admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <h1 class="section-title">Admin Dashboard</h1>
+        <p class="section-subtitle">
+          Login karke products aur gallery images add/remove karein.
+        </p>
+
+        <form id="admin-login-form" class="animate">
+          <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
+            Admin Login
+          </h3>
+          <label for="admin-username">Username</label>
+          <input id="admin-username" type="text" placeholder="admin" required />
+          <label for="admin-password">Password</label>
+          <input
+            id="admin-password"
+            type="password"
+            placeholder="admin123"
+            required
+          />
+          <button class="btn btn-primary" type="submit">Login</button>
+        </form>
+
+        <section id="admin-panel" style="display: none">
+          <div class="hero-actions" style="margin-bottom: 20px">
+            <button id="admin-logout" class="btn btn-outline dark" type="button">
+              Logout
+            </button>
+          </div>
+
+          <div class="contact-grid">
+            <form id="add-product-form" class="animate">
+              <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
+                Add Product
+              </h3>
+              <label for="product-name">Name</label>
+              <input id="product-name" type="text" required />
+              <label for="product-price">Price</label>
+              <input id="product-price" type="text" placeholder="PKR 48,000" required />
+              <label for="product-image">Image URL</label>
+              <input id="product-image" type="url" required />
+              <label for="product-category">Category</label>
+              <select id="product-category">
+                <option value="room">Room Doors</option>
+                <option value="main">Main Doors</option>
+                <option value="window">Sliding Windows</option>
+              </select>
+              <label for="product-material">Material</label>
+              <select id="product-material">
+                <option value="sheesham">Sheesham</option>
+                <option value="deodar">Deodar</option>
+                <option value="oak">Oak</option>
+              </select>
+              <label for="product-price-range">Price Range</label>
+              <select id="product-price-range">
+                <option value="mid">PKR 30k - 60k</option>
+                <option value="high">PKR 60k+</option>
+              </select>
+              <label for="product-color">Color</label>
+              <select id="product-color">
+                <option value="walnut">Walnut</option>
+                <option value="teak">Teak</option>
+                <option value="matte">Matte Black</option>
+              </select>
+              <button class="btn btn-primary" type="submit">Add Product</button>
+            </form>
+
+            <form id="add-gallery-form" class="animate">
+              <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
+                Add Gallery Image
+              </h3>
+              <label for="gallery-image">Image URL</label>
+              <input id="gallery-image" type="url" required />
+              <button class="btn btn-primary" type="submit">Add Image</button>
+            </form>
+          </div>
+
+          <section class="section" style="padding-bottom: 0">
+            <h2 class="section-title">Manage Products</h2>
+            <div id="admin-product-list"></div>
+          </section>
+
+          <section class="section" style="padding-bottom: 0">
+            <h2 class="section-title">Manage Gallery</h2>
+            <div id="admin-gallery-list"></div>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <a
+      class="whatsapp-float"
+      href="https://wa.me/923001234567"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="WhatsApp"
+      >WA</a
+    >
+    <script src="script.js"></script>
+  </body>
+</html>

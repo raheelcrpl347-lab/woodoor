@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop | Woodoor</title>
+    <meta name="description" content="Shop premium wooden doors and windows by category, material, price, and color." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav">
+        <a class="logo" href="index.html">Wood<span>oor</span></a>
+        <button class="menu-btn" aria-label="Toggle menu">&#9776;</button>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a class="active" href="shop.html">Shop</a>
+          <a href="about.html">About</a>
+          <a href="services.html">Services</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <h1 class="section-title">Shop Collection</h1>
+        <div class="shop-layout">
+          <aside class="filter-panel animate">
+            <div class="filter-group">
+              <h4>Category</h4>
+              <label><input data-filter type="radio" name="category" value="all" checked /> All</label>
+              <label><input data-filter type="radio" name="category" value="room" /> Room Doors</label>
+              <label><input data-filter type="radio" name="category" value="main" /> Main Doors</label>
+              <label><input data-filter type="radio" name="category" value="window" /> Sliding Windows</label>
+            </div>
+            <div class="filter-group">
+              <h4>Material</h4>
+              <label><input data-filter type="radio" name="material" value="all" checked /> All</label>
+              <label><input data-filter type="radio" name="material" value="sheesham" /> Sheesham</label>
+              <label><input data-filter type="radio" name="material" value="deodar" /> Deodar</label>
+              <label><input data-filter type="radio" name="material" value="oak" /> Oak</label>
+            </div>
+            <div class="filter-group">
+              <h4>Price</h4>
+              <label><input data-filter type="radio" name="price" value="all" checked /> All</label>
+              <label><input data-filter type="radio" name="price" value="mid" /> PKR 30k - 60k</label>
+              <label><input data-filter type="radio" name="price" value="high" /> PKR 60k+</label>
+            </div>
+            <div class="filter-group">
+              <h4>Color</h4>
+              <label><input data-filter type="radio" name="color" value="all" checked /> All</label>
+              <label><input data-filter type="radio" name="color" value="walnut" /> Walnut</label>
+              <label><input data-filter type="radio" name="color" value="teak" /> Teak</label>
+              <label><input data-filter type="radio" name="color" value="matte" /> Matte Black</label>
+            </div>
+          </aside>
+
+          <section id="shop-products" class="cards cards-3"></section>
+        </div>
+      </div>
+    </main>
+
+    <a class="whatsapp-float" href="https://wa.me/923001234567" target="_blank" rel="noreferrer" aria-label="WhatsApp">WA</a>
+    <script src="script.js"></script>
+  </body>
+</html>

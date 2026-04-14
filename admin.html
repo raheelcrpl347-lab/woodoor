@@ -72,28 +72,33 @@
               <label for="product-image">Image URL</label>
               <input id="product-image" type="url" required />
               <label for="product-category">Category</label>
-              <select id="product-category">
-                <option value="room">Room Doors</option>
-                <option value="main">Main Doors</option>
-                <option value="window">Sliding Windows</option>
-              </select>
+              <input
+                id="product-category"
+                type="text"
+                placeholder="room / main / window"
+                required
+              />
               <label for="product-material">Material</label>
-              <select id="product-material">
-                <option value="sheesham">Sheesham</option>
-                <option value="deodar">Deodar</option>
-                <option value="oak">Oak</option>
-              </select>
+              <input
+                id="product-material"
+                type="text"
+                placeholder="sheesham / deodar / oak"
+                required
+              />
               <label for="product-price-range">Price Range</label>
-              <select id="product-price-range">
-                <option value="mid">PKR 30k - 60k</option>
-                <option value="high">PKR 60k+</option>
-              </select>
+              <input
+                id="product-price-range"
+                type="text"
+                placeholder="mid / high"
+                required
+              />
               <label for="product-color">Color</label>
-              <select id="product-color">
-                <option value="walnut">Walnut</option>
-                <option value="teak">Teak</option>
-                <option value="matte">Matte Black</option>
-              </select>
+              <input
+                id="product-color"
+                type="text"
+                placeholder="walnut / teak / matte"
+                required
+              />
               <button class="btn btn-primary" type="submit">Add Product</button>
             </form>
 
@@ -101,8 +106,15 @@
               <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
                 Add Gallery Image
               </h3>
-              <label for="gallery-image">Image URL</label>
-              <input id="gallery-image" type="url" required />
+              <label for="gallery-image">Image URL (optional)</label>
+              <input id="gallery-image" type="url" placeholder="https://..." />
+              <label for="gallery-image-file">Or upload from local PC</label>
+              <input id="gallery-image-file" type="file" accept="image/*" />
+              <div class="image-preview-box">
+                <img id="gallery-preview-image" src="" alt="Gallery preview" style="display: none" />
+                <p id="gallery-preview-text">Preview will appear here</p>
+              </div>
+              <p id="gallery-status" class="form-status"></p>
               <button class="btn btn-primary" type="submit">Add Image</button>
             </form>
           </div>

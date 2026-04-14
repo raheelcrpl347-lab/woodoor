@@ -160,6 +160,57 @@ function formatLabel(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function normalizeValue(value) {
+  return (value || "").toString().trim().toLowerCase();
+}
+
+function normalizeCategory(value) {
+  const raw = normalizeValue(value);
+  if (raw.includes("main")) return "main";
+  if (raw.includes("window") || raw.includes("sliding")) return "window";
+  return "room";
+}
+
+function normalizeMaterial(value) {
+  const raw = normalizeValue(value);
+  if (raw.includes("oak")) return "oak";
+  if (raw.includes("deodar")) return "deodar";
+  return "sheesham";
+}
+
+function normalizePriceRange(value, priceText) {
+  const raw = normalizeValue(value);
+  if (raw.includes("high") || raw.includes("60")) return "high";
+  if (raw.includes("mid") || raw.includes("30")) return "mid";
+  const numeric = Number((priceText || "").replace(/[^\d]/g, ""));
+  return numeric >= 60000 ? "high" : "mid";
+}
+
+function normalizeColor(value) {
+  const raw = normalizeValue(value);
+  if (raw.includes("teak")) return "teak";
+  if (raw.includes("matte") || raw.includes("black")) return "matte";
+  return "walnut";
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(url);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function productCardTemplate(product) {
   return `
     <article class="card animate" data-product data-category="${product.category}" data-material="${product.material}" data-price="${product.priceRange}" data-color="${product.color}">
@@ -330,14 +381,25 @@ function setupAdmin() {
   if (addProductForm) {
     addProductForm.addEventListener("submit", (event) => {
       event.preventDefault();
+      const name = document.querySelector("#product-name").value.trim();
+      const price = document.querySelector("#product-price").value.trim();
+      const image = document.querySelector("#product-image").value.trim();
+      const categoryInput = document.querySelector("#product-category").value;
+      const materialInput = document.querySelector("#product-material").value;
+      const priceRangeInput = document.querySelector("#product-price-range").value;
+      const colorInput = document.querySelector("#product-color").value;
+      if (!name || !price || !image) {
+        alert("Name, price, and image URL are required.");
+        return;
+      }
       const product = {
-        name: document.querySelector("#product-name").value.trim(),
-        price: document.querySelector("#product-price").value.trim(),
-        category: document.querySelector("#product-category").value,
-        material: document.querySelector("#product-material").value,
-        priceRange: document.querySelector("#product-price-range").value,
-        color: document.querySelector("#product-color").value,
-        image: document.querySelector("#product-image").value.trim(),
+        name,
+        price,
+        category: normalizeCategory(categoryInput),
+        material: normalizeMaterial(materialInput),
+        priceRange: normalizePriceRange(priceRangeInput, price),
+        color: normalizeColor(colorInput),
+        image,
       };
       const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
       products.unshift(product);
@@ -350,15 +412,90 @@ function setupAdmin() {
 
   const addGalleryForm = document.querySelector("#add-gallery-form");
   if (addGalleryForm) {
-    addGalleryForm.addEventListener("submit", (event) => {
+    const galleryInput = document.querySelector("#gallery-image");
+    const galleryFileInput = document.querySelector("#gallery-image-file");
+    const previewImg = document.querySelector("#gallery-preview-image");
+    const previewText = document.querySelector("#gallery-preview-text");
+    const statusEl = document.querySelector("#gallery-status");
+
+    async function updateGalleryPreview(selectedSource) {
+      const selectedFile = galleryFileInput.files && galleryFileInput.files[0];
+      const imageUrl = galleryInput.value.trim();
+      if (!imageUrl && !selectedFile) {
+        previewImg.style.display = "none";
+        previewImg.src = "";
+        previewText.textContent = "Preview will appear here";
+        statusEl.textContent = "";
+        return;
+      }
+
+      // If user is explicitly using URL, clear file. If user picks file, clear URL.
+      if (selectedSource === "url" && selectedFile) {
+        galleryFileInput.value = "";
+      } else if (selectedSource === "file" && imageUrl) {
+        galleryInput.value = "";
+      }
+
+      const currentFile = galleryFileInput.files && galleryFileInput.files[0];
+      const currentUrl = galleryInput.value.trim();
+
+      try {
+        if (currentFile) {
+          const localImage = await fileToDataURL(currentFile);
+          previewImg.src = localImage;
+          previewText.textContent = `Local file selected: ${currentFile.name}`;
+          statusEl.textContent = "Local image loaded. You can add it now.";
+        } else {
+          await loadImage(currentUrl);
+          previewImg.src = currentUrl;
+          previewText.textContent = "Preview loaded";
+          statusEl.textContent = "Image URL looks good. You can add it now.";
+        }
+        previewImg.style.display = "block";
+      } catch (error) {
+        previewImg.style.display = "none";
+        previewImg.src = "";
+        previewText.textContent = "Image not loading. Check URL.";
+        statusEl.textContent = "Unable to load selected image.";
+      }
+    }
+
+    galleryInput.addEventListener("input", () => {
+      updateGalleryPreview("url");
+    });
+
+    galleryFileInput.addEventListener("change", () => {
+      updateGalleryPreview("file");
+    });
+
+    addGalleryForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const image = document.querySelector("#gallery-image").value.trim();
+      const imageUrl = galleryInput.value.trim();
+      const selectedFile = galleryFileInput.files && galleryFileInput.files[0];
+      let image = "";
+      try {
+        if (selectedFile) {
+          image = await fileToDataURL(selectedFile);
+        } else if (imageUrl) {
+          await loadImage(imageUrl);
+          image = imageUrl;
+        } else {
+          statusEl.textContent = "Enter an image URL or choose a local file.";
+          return;
+        }
+      } catch (error) {
+        statusEl.textContent = "Image source invalid. Use another URL/file.";
+        return;
+      }
       const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY);
       gallery.unshift(image);
       writeJSON(STORAGE_KEYS.gallery, gallery);
       addGalleryForm.reset();
+      previewImg.style.display = "none";
+      previewImg.src = "";
+      previewText.textContent = "Image added successfully.";
+      statusEl.textContent = "Added. Thumbnail is now listed below.";
       renderAdminLists();
-      alert("Image added");
     });
   }
 

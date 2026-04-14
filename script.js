@@ -4,6 +4,9 @@ const STORAGE_KEYS = {
   auth: "woodoor_admin_auth",
 };
 
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=900&q=80";
+
 const DEFAULT_PRODUCTS = [
   {
     name: "Classic Sheesham Room Door",
@@ -26,6 +29,46 @@ const DEFAULT_PRODUCTS = [
       "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=600&q=80",
   },
   {
+    name: "Heritage Double Main Door",
+    price: "PKR 96,000",
+    category: "main",
+    material: "sheesham",
+    priceRange: "high",
+    color: "walnut",
+    image:
+      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Modern Panel Room Door",
+    price: "PKR 46,500",
+    category: "room",
+    material: "deodar",
+    priceRange: "mid",
+    color: "teak",
+    image:
+      "https://images.unsplash.com/photo-1615874959474-d609969a20ed?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Premium Carved Oak Door",
+    price: "PKR 84,500",
+    category: "main",
+    material: "oak",
+    priceRange: "high",
+    color: "teak",
+    image:
+      "https://images.unsplash.com/photo-1549187774-b4e9b0445b41?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Minimal Flush Room Door",
+    price: "PKR 38,500",
+    category: "room",
+    material: "deodar",
+    priceRange: "mid",
+    color: "matte",
+    image:
+      "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=900&q=80",
+  },
+  {
     name: "Deodar Sliding Window",
     price: "PKR 39,500",
     category: "window",
@@ -34,6 +77,26 @@ const DEFAULT_PRODUCTS = [
     color: "matte",
     image:
       "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    name: "French Style Door Set",
+    price: "PKR 79,000",
+    category: "main",
+    material: "oak",
+    priceRange: "high",
+    color: "walnut",
+    image:
+      "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Classic Engraved Room Door",
+    price: "PKR 44,000",
+    category: "room",
+    material: "sheesham",
+    priceRange: "mid",
+    color: "walnut",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
@@ -58,8 +121,16 @@ function writeJSON(key, value) {
 }
 
 function bootstrapStorage() {
-  if (!localStorage.getItem(STORAGE_KEYS.products)) {
+  const storedProducts = readJSON(STORAGE_KEYS.products, []);
+  if (!Array.isArray(storedProducts) || storedProducts.length === 0) {
     writeJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
+  } else {
+    const existingNames = new Set(storedProducts.map((item) => item.name));
+    const merged = [...storedProducts];
+    DEFAULT_PRODUCTS.forEach((product) => {
+      if (!existingNames.has(product.name)) merged.push(product);
+    });
+    writeJSON(STORAGE_KEYS.products, merged);
   }
   if (!localStorage.getItem(STORAGE_KEYS.gallery)) {
     writeJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY);
@@ -84,23 +155,43 @@ if (slides.length > 0) {
   }, 4500);
 }
 
+function formatLabel(value) {
+  if (!value) return "N/A";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function productCardTemplate(product) {
+  return `
+    <article class="card animate" data-product data-category="${product.category}" data-material="${product.material}" data-price="${product.priceRange}" data-color="${product.color}">
+      <img src="${product.image || FALLBACK_IMAGE}" alt="${product.name}" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
+      <div class="card-content">
+        <h3>${product.name}</h3>
+        <p class="price">${product.price}</p>
+        <p class="product-meta">${formatLabel(product.material)} | ${formatLabel(product.color)}</p>
+      </div>
+    </article>`;
+}
+
+function updateVisibleCount() {
+  const countEl = document.querySelector("#shop-count");
+  if (!countEl) return;
+  const visible = Array.from(document.querySelectorAll("[data-product]")).filter(
+    (el) => el.style.display !== "none"
+  ).length;
+  countEl.textContent = `Showing ${visible} products`;
+}
+
 function renderShopProducts() {
   const wrap = document.querySelector("#shop-products");
   if (!wrap) return;
   const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
-  wrap.innerHTML = products
-    .map(
-      (product) => `
-      <article class="card animate" data-product data-category="${product.category}" data-material="${product.material}" data-price="${product.priceRange}" data-color="${product.color}">
-        <img src="${product.image}" alt="${product.name}" />
-        <div class="card-content">
-          <h3>${product.name}</h3>
-          <p class="price">${product.price}</p>
-          <p class="product-meta">${product.material} | ${product.color}</p>
-        </div>
-      </article>`
-    )
-    .join("");
+  if (!Array.isArray(products) || products.length === 0) {
+    wrap.innerHTML = `<div class="empty-state"><h3>No products found</h3><p>Please add products from admin panel.</p></div>`;
+    updateVisibleCount();
+    return;
+  }
+  wrap.innerHTML = products.map((product) => productCardTemplate(product)).join("");
+  updateVisibleCount();
 }
 
 function renderGallery() {
@@ -128,7 +219,7 @@ function renderFeaturedProducts() {
     .map(
       (product) => `
       <article class="card animate">
-        <img src="${product.image}" alt="${product.name}" />
+        <img src="${product.image || FALLBACK_IMAGE}" alt="${product.name}" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'" />
         <div class="card-content">
           <h3>${product.name}</h3>
           <p class="price">${product.price}</p>
@@ -173,11 +264,21 @@ function wireFilters() {
         );
         product.style.display = match ? "block" : "none";
       });
+      updateVisibleCount();
     });
   });
 }
 
 wireFilters();
+
+const resetCatalogBtn = document.querySelector("#reset-catalog");
+if (resetCatalogBtn) {
+  resetCatalogBtn.addEventListener("click", () => {
+    writeJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
+    renderShopProducts();
+    wireFilters();
+  });
+}
 
 const mainImage = document.querySelector("#main-product-image");
 const thumbs = document.querySelectorAll(".thumbs img");

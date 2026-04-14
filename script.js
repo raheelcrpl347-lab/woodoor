@@ -4,6 +4,66 @@ const STORAGE_KEYS = {
   auth: "woodoor_admin_auth",
 };
 
+let loaderCounter = 0;
+
+function createGlobalLoader() {
+  if (document.querySelector("#global-loader")) return;
+  const loader = document.createElement("div");
+  loader.id = "global-loader";
+  loader.innerHTML = `
+    <div class="loader-wrap">
+      <div class="door-loader">
+        <div class="door-frame">
+          <div class="door-left"></div>
+          <div class="door-right"></div>
+        </div>
+      </div>
+      <p class="loader-text">Loading showroom...</p>
+    </div>
+  `;
+  document.body.appendChild(loader);
+}
+
+function showGlobalLoader() {
+  createGlobalLoader();
+  loaderCounter += 1;
+  const loader = document.querySelector("#global-loader");
+  if (loader) loader.classList.add("active");
+}
+
+function hideGlobalLoader(force = false) {
+  if (force) {
+    loaderCounter = 0;
+  } else {
+    loaderCounter = Math.max(0, loaderCounter - 1);
+  }
+  if (loaderCounter > 0) return;
+  const loader = document.querySelector("#global-loader");
+  if (loader) loader.classList.remove("active");
+}
+
+function setupLoaderLifecycle() {
+  createGlobalLoader();
+  if (document.readyState !== "complete") {
+    showGlobalLoader();
+    window.addEventListener("load", () => hideGlobalLoader(true), { once: true });
+  }
+
+  window.addEventListener("beforeunload", () => showGlobalLoader());
+
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a");
+    if (!link) return;
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("#")) return;
+    if (link.target === "_blank") return;
+    if (href.startsWith("http") && !href.includes(window.location.host)) return;
+    showGlobalLoader();
+  });
+}
+
+setupLoaderLifecycle();
+
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=900&q=80";
 
@@ -188,25 +248,90 @@ function normalizePriceRange(value, priceText) {
 
 function normalizeColor(value) {
   const raw = normalizeValue(value);
-  if (raw.includes("teak")) return "teak";
-  if (raw.includes("matte") || raw.includes("black")) return "matte";
-  return "walnut";
+  return raw || "walnut";
+}
+
+function inferPriceRangeFromBand(priceAmount, fromAmount, toAmount) {
+  if (Number.isNaN(priceAmount)) return "mid";
+  const upper = Math.max(fromAmount || 0, toAmount || 0, 60000);
+  return priceAmount >= upper ? "high" : "mid";
+}
+
+function normalizeProductPages(value) {
+  const allowed = [
+    "home",
+    "shop",
+    "product",
+    "about",
+    "services",
+    "gallery",
+    "contact",
+    "admin",
+  ];
+  if (Array.isArray(value) && value.length > 0) {
+    const cleaned = value.map((item) => normalizeValue(item)).filter((item) => allowed.includes(item));
+    return cleaned.length > 0 ? Array.from(new Set(cleaned)) : ["home", "shop"];
+  }
+  const raw = normalizeValue(value);
+  if (raw === "home") return ["home"];
+  if (raw === "shop") return ["shop"];
+  return ["home", "shop"];
+}
+
+function getProductPages(product) {
+  if (product.pages) return normalizeProductPages(product.pages);
+  return normalizeProductPages(product.displayOn);
+}
+
+function isProductVisibleOnPage(product, pageKey) {
+  return getProductPages(product).includes(pageKey);
+}
+
+function normalizeGalleryDisplayOn(value) {
+  const raw = normalizeValue(value);
+  if (raw === "home") return "home";
+  if (raw === "gallery") return "gallery";
+  return "both";
+}
+
+function normalizeGalleryItem(item) {
+  if (typeof item === "string") {
+    return { src: item, displayOn: "both" };
+  }
+  return {
+    src: item?.src || "",
+    displayOn: normalizeGalleryDisplayOn(item?.displayOn),
+  };
 }
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
+    showGlobalLoader();
     const img = new Image();
-    img.onload = () => resolve(url);
-    img.onerror = reject;
+    img.onload = () => {
+      hideGlobalLoader();
+      resolve(url);
+    };
+    img.onerror = () => {
+      hideGlobalLoader();
+      reject(new Error("Image load failed"));
+    };
     img.src = url;
   });
 }
 
 function fileToDataURL(file) {
   return new Promise((resolve, reject) => {
+    showGlobalLoader();
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
+    reader.onload = () => {
+      hideGlobalLoader();
+      resolve(reader.result);
+    };
+    reader.onerror = () => {
+      hideGlobalLoader();
+      reject(new Error("File read failed"));
+    };
     reader.readAsDataURL(file);
   });
 }
@@ -235,7 +360,9 @@ function updateVisibleCount() {
 function renderShopProducts() {
   const wrap = document.querySelector("#shop-products");
   if (!wrap) return;
-  const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
+  const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS).filter((product) =>
+    isProductVisibleOnPage(product, "shop")
+  );
   if (!Array.isArray(products) || products.length === 0) {
     wrap.innerHTML = `<div class="empty-state"><h3>No products found</h3><p>Please add products from admin panel.</p></div>`;
     updateVisibleCount();
@@ -246,18 +373,22 @@ function renderShopProducts() {
 }
 
 function renderGallery() {
-  const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY);
+  const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY).map(
+    normalizeGalleryItem
+  );
   const galleryPage = document.querySelector("#gallery-grid");
   if (galleryPage) {
     galleryPage.innerHTML = gallery
-      .map((src, idx) => `<img src="${src}" alt="Gallery image ${idx + 1}" />`)
+      .filter((item) => item.displayOn !== "home")
+      .map((item, idx) => `<img src="${item.src}" alt="Gallery image ${idx + 1}" />`)
       .join("");
   }
   const homeGallery = document.querySelector("#home-gallery-grid");
   if (homeGallery) {
     homeGallery.innerHTML = gallery
+      .filter((item) => item.displayOn !== "gallery")
       .slice(0, 4)
-      .map((src, idx) => `<img src="${src}" alt="Project ${idx + 1}" />`)
+      .map((item, idx) => `<img src="${item.src}" alt="Project ${idx + 1}" />`)
       .join("");
   }
 }
@@ -265,7 +396,9 @@ function renderGallery() {
 function renderFeaturedProducts() {
   const wrap = document.querySelector("#featured-products");
   if (!wrap) return;
-  const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS).slice(0, 4);
+  const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS)
+    .filter((product) => isProductVisibleOnPage(product, "home"))
+    .slice(0, 4);
   wrap.innerHTML = products
     .map(
       (product) => `
@@ -283,6 +416,22 @@ function renderFeaturedProducts() {
 renderShopProducts();
 renderGallery();
 renderFeaturedProducts();
+
+function renderPageProducts() {
+  const grid = document.querySelector("#page-products-grid");
+  if (!grid) return;
+  const pageKey = document.body.dataset.page || "";
+  const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS)
+    .filter((product) => isProductVisibleOnPage(product, pageKey))
+    .slice(0, 6);
+  if (products.length === 0) {
+    grid.innerHTML = "";
+    return;
+  }
+  grid.innerHTML = products.map((product) => productCardTemplate(product)).join("");
+}
+
+renderPageProducts();
 
 const animateElements = document.querySelectorAll(".animate");
 if (animateElements.length > 0) {
@@ -379,34 +528,82 @@ function setupAdmin() {
 
   const addProductForm = document.querySelector("#add-product-form");
   if (addProductForm) {
-    addProductForm.addEventListener("submit", (event) => {
+    const productStatus = document.querySelector("#product-status");
+
+    function setProductStatus(message) {
+      if (productStatus) productStatus.textContent = message;
+    }
+
+    addProductForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      setProductStatus("");
+      const productMediaStatus = document.querySelector("#product-media-status");
       const name = document.querySelector("#product-name").value.trim();
-      const price = document.querySelector("#product-price").value.trim();
-      const image = document.querySelector("#product-image").value.trim();
+      const priceRaw = document.querySelector("#product-price").value.trim();
+      const productImageUrl = document.querySelector("#product-image-url").value.trim();
+      const productImageFile = document.querySelector("#product-image-file").files[0];
+      const productPagesSelect = document.querySelector("#product-visibility-pages");
       const categoryInput = document.querySelector("#product-category").value;
       const materialInput = document.querySelector("#product-material").value;
-      const priceRangeInput = document.querySelector("#product-price-range").value;
       const colorInput = document.querySelector("#product-color").value;
-      if (!name || !price || !image) {
-        alert("Name, price, and image URL are required.");
+      const selectedPages = Array.from(productPagesSelect.selectedOptions).map(
+        (option) => option.value
+      );
+      const priceAmount = Number(priceRaw);
+
+      if (!name) {
+        setProductStatus("Please enter product name.");
+        return;
+      }
+      if (Number.isNaN(priceAmount) || priceAmount < 0) {
+        setProductStatus("Please enter valid numeric price.");
+        return;
+      }
+      if (!categoryInput.trim() || !materialInput.trim() || !colorInput.trim()) {
+        setProductStatus("Category, material, and color are required.");
+        return;
+      }
+      if (selectedPages.length === 0) {
+        setProductStatus("Select at least one page for product visibility.");
+        return;
+      }
+      let productImage = FALLBACK_IMAGE;
+      try {
+        if (productImageFile) {
+          productImage = await fileToDataURL(productImageFile);
+          if (productMediaStatus) productMediaStatus.textContent = "Using selected local product image.";
+        } else if (productImageUrl) {
+          await loadImage(productImageUrl);
+          productImage = productImageUrl;
+          if (productMediaStatus) productMediaStatus.textContent = "Using entered product image URL.";
+        } else if (productMediaStatus) {
+          productMediaStatus.textContent = "No product image selected. Using default image.";
+        }
+      } catch (error) {
+        setProductStatus("Selected product image could not be loaded.");
         return;
       }
       const product = {
         name,
-        price,
+        price: `PKR ${priceAmount.toLocaleString("en-US")}`,
         category: normalizeCategory(categoryInput),
         material: normalizeMaterial(materialInput),
-        priceRange: normalizePriceRange(priceRangeInput, price),
+        priceRange: inferPriceRangeFromBand(priceAmount, 30000, 60000),
         color: normalizeColor(colorInput),
-        image,
+        pages: normalizeProductPages(selectedPages),
+        image: productImage,
       };
       const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
       products.unshift(product);
       writeJSON(STORAGE_KEYS.products, products);
       addProductForm.reset();
+      if (productPagesSelect) {
+        Array.from(productPagesSelect.options).forEach((opt) => {
+          opt.selected = opt.value === "home" || opt.value === "shop";
+        });
+      }
       renderAdminLists();
-      alert("Product added");
+      setProductStatus("Product added successfully.");
     });
   }
 
@@ -487,8 +684,13 @@ function setupAdmin() {
         statusEl.textContent = "Image source invalid. Use another URL/file.";
         return;
       }
-      const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY);
-      gallery.unshift(image);
+      const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY).map(
+        normalizeGalleryItem
+      );
+      gallery.unshift({
+        src: image,
+        displayOn: "both",
+      });
       writeJSON(STORAGE_KEYS.gallery, gallery);
       addGalleryForm.reset();
       previewImg.style.display = "none";
@@ -508,7 +710,9 @@ function renderAdminLists() {
   if (!productList || !galleryList) return;
 
   const products = readJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
-  const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY);
+  const gallery = readJSON(STORAGE_KEYS.gallery, DEFAULT_GALLERY).map(
+    normalizeGalleryItem
+  );
 
   productList.innerHTML = products
     .map(
@@ -516,6 +720,7 @@ function renderAdminLists() {
       <div class="why-card" style="margin-bottom:10px;">
         <strong>${item.name}</strong> - ${item.price}
         <div><small>${item.category} | ${item.material} | ${item.color}</small></div>
+        <div><small>${getProductPages(item).join(", ")}</small></div>
         <button class="btn btn-outline dark" data-delete-product="${idx}" style="margin-top:8px;">Delete</button>
       </div>`
     )
@@ -525,7 +730,8 @@ function renderAdminLists() {
     .map(
       (item, idx) => `
       <div class="why-card" style="margin-bottom:10px;">
-        <img src="${item}" alt="Gallery" style="height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
+        <img src="${item.src}" alt="Gallery" style="height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
+        <div><small>Display: ${normalizeGalleryDisplayOn(item.displayOn)}</small></div>
         <button class="btn btn-outline dark" data-delete-gallery="${idx}">Delete</button>
       </div>`
     )

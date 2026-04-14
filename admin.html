@@ -16,7 +16,7 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body data-page="admin">
     <header class="header">
       <div class="container nav">
         <a class="logo" href="index.html">Wood<span>oor</span></a>
@@ -65,44 +65,59 @@
               <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
                 Add Product
               </h3>
+              <p id="product-status" class="form-status"></p>
               <label for="product-name">Name</label>
-              <input id="product-name" type="text" required />
+              <input id="product-name" type="text" placeholder="Enter product name" maxlength="80" required />
               <label for="product-price">Price</label>
-              <input id="product-price" type="text" placeholder="PKR 48,000" required />
-              <label for="product-image">Image URL</label>
-              <input id="product-image" type="url" required />
+              <input
+                id="product-price"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                placeholder="Enter price amount in PKR"
+                required
+              />
               <label for="product-category">Category</label>
               <input
                 id="product-category"
                 type="text"
-                placeholder="room / main / window"
+                placeholder="Room, Main, or Window"
                 required
               />
               <label for="product-material">Material</label>
               <input
                 id="product-material"
                 type="text"
-                placeholder="sheesham / deodar / oak"
-                required
-              />
-              <label for="product-price-range">Price Range</label>
-              <input
-                id="product-price-range"
-                type="text"
-                placeholder="mid / high"
+                placeholder="Sheesham, Deodar, Oak..."
                 required
               />
               <label for="product-color">Color</label>
-              <input
-                id="product-color"
-                type="text"
-                placeholder="walnut / teak / matte"
-                required
-              />
+              <input id="product-color" type="text" placeholder="Color" maxlength="30" required />
               <button class="btn btn-primary" type="submit">Add Product</button>
             </form>
 
             <form id="add-gallery-form" class="animate">
+              <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
+                Product Media & Visibility
+              </h3>
+              <p id="product-media-status" class="form-status"></p>
+              <label for="product-image-url">Product Image URL (optional)</label>
+              <input id="product-image-url" type="url" placeholder="https://..." />
+              <label for="product-image-file">Or choose product image from local PC</label>
+              <input id="product-image-file" type="file" accept="image/*" />
+              <label for="product-visibility-pages">Show Product On (multi-select)</label>
+              <select id="product-visibility-pages" multiple size="8">
+                <option value="home" selected>Home</option>
+                <option value="shop" selected>Shop</option>
+                <option value="product">Product Detail</option>
+                <option value="about">About</option>
+                <option value="services">Services</option>
+                <option value="gallery">Gallery</option>
+                <option value="contact">Contact</option>
+                <option value="admin">Admin</option>
+              </select>
+              <small style="display:block; margin-bottom: 12px; color:#666;">Ctrl/Cmd key se multiple pages select karein.</small>
               <h3 style="font-family: Poppins, sans-serif; margin-bottom: 10px">
                 Add Gallery Image
               </h3>

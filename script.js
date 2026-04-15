@@ -49,6 +49,7 @@ function setupLoaderLifecycle() {
     window.addEventListener("load", () => hideGlobalLoader(true), { once: true });
   }
 
+  window.addEventListener("pageshow", () => hideGlobalLoader(true));
   window.addEventListener("beforeunload", () => showGlobalLoader());
 
   document.addEventListener("click", (event) => {
@@ -57,8 +58,15 @@ function setupLoaderLifecycle() {
     const href = link.getAttribute("href");
     if (!href || href.startsWith("#")) return;
     if (link.target === "_blank") return;
-    if (href.startsWith("http") && !href.includes(window.location.host)) return;
+    if (link.hasAttribute("download")) return;
+    const nextUrl = new URL(href, window.location.href);
+    if (nextUrl.origin !== window.location.origin) return;
+    const isSameDocument =
+      nextUrl.pathname === window.location.pathname &&
+      nextUrl.search === window.location.search;
+    if (isSameDocument && nextUrl.hash) return;
     showGlobalLoader();
+    window.setTimeout(() => hideGlobalLoader(true), 5000);
   });
 }
 

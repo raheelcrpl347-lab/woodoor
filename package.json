@@ -1,0 +1,23 @@
+{
+  "name": "woodoor",
+  "version": "1.0.0",
+  "description": "Premium Wooden Doors & Windows",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raheelcrpl347-lab/woodoor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raheelcrpl347-lab/woodoor/issues"
+  },
+  "homepage": "https://github.com/raheelcrpl347-lab/woodoor#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}

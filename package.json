@@ -1,0 +1,27 @@
+{
+  "name": "woodoor",
+  "version": "1.0.0",
+  "description": "Woodoor - Premium Wooden Doors & Windows website with Vercel Speed Insights",
+  "main": "script.js",
+  "scripts": {
+    "build": "esbuild speed-insights-init.js --bundle --outfile=speed-insights.bundle.js --format=iife --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raheelcrpl347-lab/woodoor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raheelcrpl347-lab/woodoor/issues"
+  },
+  "homepage": "https://github.com/raheelcrpl347-lab/woodoor#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}
